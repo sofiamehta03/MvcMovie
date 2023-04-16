@@ -40,7 +40,7 @@ steps:
     command: 'publish'
     projects: '**/*.csproj'
     publishWebProjects: false
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(artifactName)'
+    arguments: '--configuration $(buildConfiguration) --output "$(Build.ArtifactStagingDirectory)/$(artifactName)"'
 
 - task: ArchiveFiles@2
   displayName: 'Create ZIP file artifact'
