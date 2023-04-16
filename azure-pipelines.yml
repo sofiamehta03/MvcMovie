@@ -1,0 +1,57 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+
+trigger:
+- main
+
+pool:
+  name: Default
+  demands:
+  - msbuild
+  - visualstudio
+  - vstest
+
+variables:
+  buildConfiguration: 'Release'
+  solution: '**/*.sln'
+  artifactName: 'devOp-MVC-Agile'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages'
+  inputs:
+    command: 'restore'
+    projects: '$(solution)'
+    feedsToUse: 'select'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build application'
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish application'
+  inputs:
+    command: 'publish'
+    projects: '**/*.csproj'
+    publishWebProjects: false
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(artifactName)'
+
+- task: ArchiveFiles@2
+  displayName: 'Create ZIP file artifact'
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/$(artifactName)'
+    includeRootFolder: false
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(artifactName).zip'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish build artifact'
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)/$(artifactName).zip'
+    artifactName: 'devOp-MVC-Agile'
+    publishLocation: 'Container'
